@@ -1,0 +1,21 @@
+{
+	"name": "AzureSqlTable1",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_AzureSQL_Retail",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"ServerName": "0",
+				"DatabaseName": "0",
+				"UserName": "0"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "retail_customers_source"
+		}
+	}
+}

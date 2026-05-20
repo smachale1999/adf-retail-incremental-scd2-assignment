@@ -1,0 +1,90 @@
+{
+	"name": "_PL_SQL_Incremental_Load_To_ADLS_",
+	"properties": {
+		"activities": [
+			{
+				"name": "LK_Old_Watermark",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "SELECT last_watermark_value\nFROM dbo.pipeline_watermark\nWHERE source_table_name = '@{pipeline().parameters.sourceTableName}'",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "AzureSqlTable1",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "LK_New_Watermark",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "SELECT MAX(@{pipeline().parameters.watermarkColumn}) AS new_watermark_value\nFROM @{pipeline().parameters.sourceSchemaName}.@{pipeline().parameters.sourceTableName}",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "AzureSqlTable1",
+						"type": "DatasetReference"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"sourceSchemaName": {
+				"type": "string",
+				"defaultValue": "dbo"
+			},
+			"sourceTableName": {
+				"type": "string",
+				"defaultValue": "retail_customers_source"
+			},
+			"watermarkColumn": {
+				"type": "string",
+				"defaultValue": "updated_at"
+			},
+			"targetContainer": {
+				"type": "string",
+				"defaultValue": "raw"
+			},
+			"targetFolderPath": {
+				"type": "string",
+				"defaultValue": "retail/customers/incremental/"
+			},
+			"targetFileName": {
+				"type": "string",
+				"defaultValue": "customers_incremental.parquet"
+			}
+		},
+		"annotations": []
+	}
+}
